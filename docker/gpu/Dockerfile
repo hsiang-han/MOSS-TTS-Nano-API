@@ -7,12 +7,10 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir \
-    moss-tts-nano \
-    fastapi \
-    uvicorn[standard] \
-    python-multipart \
-    soundfile
+RUN pip install --no-cache-dir --no-deps moss-tts-nano && \
+    pip install --no-cache-dir \
+        "numpy>=1.24" "sentencepiece>=0.1.99" "transformers==4.57.1" "onnxruntime>=1.20.0" \
+        fastapi uvicorn[standard] python-multipart soundfile
 
 COPY api/ ./api/
 COPY docker/scripts/entrypoint.sh .
