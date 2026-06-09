@@ -1,0 +1,27 @@
+name: moss-tts-nano-api
+services:
+  moss-tts-nano:
+    image: ghcr.io/hsiang-han/moss-tts-nano-api:latest
+    container_name: moss-tts-nano-api
+    build:
+      context: ../..
+      dockerfile: docker/gpu/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - /mnt/user/appdata/moss-tts-nano-api/models:/root/.cache/huggingface
+    environment:
+      - MODEL_ID=OpenMOSS-Team/MOSS-TTS-Nano-100M
+      - DEVICE=auto
+      - DEFAULT_VOICE=zh_1
+      - HF_ENDPOINT=https://huggingface.co
+      - PORT=8080
+    shm_size: "2gb"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
