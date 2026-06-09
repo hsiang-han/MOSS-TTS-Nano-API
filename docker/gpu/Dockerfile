@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.9.1-cuda12.8-cudnn9-devel
+FROM pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -7,11 +7,12 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Install moss-tts-nano without its torch pin (base image already has torch 2.9.1)
-RUN pip install --no-cache-dir --no-deps moss-tts-nano && \
-    pip install --no-cache-dir \
-        numpy sentencepiece transformers onnxruntime \
-        fastapi uvicorn[standard] python-multipart soundfile
+RUN pip install --no-cache-dir \
+    moss-tts-nano \
+    fastapi \
+    uvicorn[standard] \
+    python-multipart \
+    soundfile
 
 COPY api/ ./api/
 COPY docker/scripts/entrypoint.sh .
