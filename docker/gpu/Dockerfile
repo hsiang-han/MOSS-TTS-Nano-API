@@ -7,7 +7,7 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir --no-deps moss-tts-nano && \
+RUN pip install --no-cache-dir --no-deps "moss-tts-nano @ git+https://github.com/OpenMOSS/MOSS-TTS-Nano.git" && \
     pip install --no-cache-dir \
         "numpy>=1.24" "sentencepiece>=0.1.99" "transformers==4.57.1" "onnxruntime>=1.20.0" \
         fastapi uvicorn[standard] python-multipart soundfile
