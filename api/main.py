@@ -16,6 +16,16 @@ DEVICE = os.getenv("DEVICE", "auto")
 DTYPE = os.getenv("DTYPE", "auto")
 DEFAULT_VOICE = os.getenv("DEFAULT_VOICE", "zh_1")
 
+# Map OpenAI standard voice names to MOSS presets
+OPENAI_VOICE_MAP = {
+    "alloy": "en_1",
+    "echo": "en_2",
+    "fable": "en_3",
+    "onyx": "en_4",
+    "nova": "en_5",
+    "shimmer": "zh_1",
+}
+
 _service = None
 _model_lock = threading.Lock()
 
@@ -87,6 +97,7 @@ async def text_to_speech(req: SpeechRequest):
         raise HTTPException(status_code=400, detail="Input text is empty")
 
     voice = req.voice if req.voice else DEFAULT_VOICE
+    voice = OPENAI_VOICE_MAP.get(voice, voice)
 
     with _model_lock:
         result = _service.synthesize(
@@ -138,22 +149,6 @@ async def clone_speech(
 
 def _to_pcm16(audio: np.ndarray) -> bytes:
     return np.clip(audio * 32768, -32768, 32767).astype(np.int16).tobytes()
-
-
-def _wav_header(sample_rate: int, data_len: int) -> bytes:
-    n_channels = 2
-    bits = 16
-    byte_rate = sample_rate * n_channels * bits // 8
-    block_align = n_channels * bits // 8
-    buf = io.BytesIO()
-    buf.write(b"RIFF")
-    buf.write(struct.pack("<I", 36 + data_len))
-    buf.write(b"WAVE")
-    buf.write(b"fmt ")
-    buf.write(struct.pack("<IHHIIHH", 16, 1, n_channels, sample_rate, byte_rate, block_align, bits))
-    buf.write(b"data")
-    buf.write(struct.pack("<I", data_len))
-    return buf.getvalue()
 
 
 def _to_wav(audio: np.ndarray, sample_rate: int) -> bytes:
